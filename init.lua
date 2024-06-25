@@ -7,7 +7,7 @@ vim.opt.relativenumber = true
 vim.opt.mouse = 'a'
 
 -- Sync clipboard between OS and Neovim.
-vim.opt.clipboard = 'unnamedplus'
+-- vim.opt.clipboard = 'unnamedplus'
 vim.opt.breakindent = true
 vim.opt.undofile = true
 vim.opt.ignorecase = true
@@ -22,6 +22,9 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 vim.opt.scrolloff = 10
+vim.cmd.colorscheme 'evening'
+vim.cmd.hi 'Comment gui=none'
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 vim.opt.hlsearch = true
@@ -42,21 +45,15 @@ vim.keymap.set('n', '<leader>gs', vim.cmd.Git)
 
 vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
 
-vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
-vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
+-- Primeagen Keybindings
+vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'move highlighted text down one line' })
+vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'move highlighted text up one line' })
 
-vim.keymap.set('n', 'J', 'mzJ`z')
-vim.keymap.set('n', '<C-d>', '<C-d>zz')
-vim.keymap.set('n', '<C-u>', '<C-u>zz')
+vim.keymap.set('n', 'J', 'mzJ`z', { desc = 'keep cursor in place when joining lines' })
+vim.keymap.set('n', '<C-d>', '<C-d>zz', { desc = 'keep cursor in middle while navigating down' })
+vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'keep cursor in middle while navigating up' })
 vim.keymap.set('n', 'n', 'nzzzv')
 vim.keymap.set('n', 'N', 'Nzzzv')
-
-vim.keymap.set('n', '<leader>vwm', function()
-  require('vim-with-me').StartVimWithMe()
-end)
-vim.keymap.set('n', '<leader>svwm', function()
-  require('vim-with-me').StopVimWithMe()
-end)
 
 -- greatest remap ever
 vim.keymap.set('x', '<leader>p', [["_dP]])
@@ -86,10 +83,9 @@ vim.keymap.set('n', '<leader>ee', 'oif err != nil {<CR>}<Esc>Oreturn err<Esc>')
 
 vim.keymap.set('n', '<leader>vpp', '<cmd>e ~/.dotfiles/nvim/.config/nvim/lua/theprimeagen/packer.lua<CR>')
 vim.keymap.set('n', '<leader>mr', '<cmd>CellularAutomaton make_it_rain<CR>')
-
-vim.keymap.set('n', '<leader><leader>', function()
-  vim.cmd 'so'
-end)
+vim.keymap.set('n', '<leader>vca', function()
+  vim.lsp.buf.code_action()
+end, { desc = 'Run code action (e.g. add import)' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -113,13 +109,17 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 -- [[ Configure and install plugins ]]
--- NOTE: Here is where you install your plugins.
 require('lazy').setup({
-  -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
   'ThePrimeagen/vim-be-good',
   'mbbill/undotree',
   'tpope/vim-fugitive',
+  'christoomey/vim-tmux-navigator',
+  {
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+  },
   { 'numToStr/Comment.nvim', opts = {} },
   {
     'lewis6991/gitsigns.nvim',
@@ -502,10 +502,7 @@ require('lazy').setup({
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
     priority = 1000,
-    init = function()
-      vim.cmd.colorscheme 'tokyonight-night'
-      vim.cmd.hi 'Comment gui=none'
-    end,
+    init = function() end,
   },
 
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
@@ -578,7 +575,7 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {
   ui = {
     icons = vim.g.have_nerd_font and {} or {
